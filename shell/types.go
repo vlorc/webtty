@@ -11,3 +11,5 @@ type message struct {
 	Type string    `json:"type"`
 	Data []float64 `json:"data"`
 }
+
+type Factory func(*Config) Pty

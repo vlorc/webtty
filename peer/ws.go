@@ -41,6 +41,7 @@ func __write(conn *websocket.Conn, msg *Message) error {
 	}
 	return err
 }
+
 func (ws *WebSocketDriver) __write() {
 	ticker := time.NewTicker(ws.timeout - time.Second*5)
 	defer ticker.Stop()
@@ -96,10 +97,9 @@ func (ws *WebSocketDriver) __loop() {
 		conn, _, err := websocket.DefaultDialer.Dial(ws.url, nil)
 		if nil != err {
 			log.Println("Websocket dial error:", err.Error(), "try:", i)
-			time.Sleep(15 * time.Second)
+			time.Sleep(time.Duration(5+(i&15)) + time.Second)
 			continue
 		}
-		log.Println("Websocket dial success")
 		ws.conn = conn
 		ws.__read(conn)
 		ws.Close()

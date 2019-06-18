@@ -10,20 +10,22 @@ A webrtc terminal experimental project
 
 # Features
 + gateway
-+ win/linux
++ windows/linux
 + typescript
++ pion v2.0.0
++ pure go（no cgo）
 
 ## Installing
 	go get -u github.com/vlorc/webtty
 
-Webtty uses the great [pions/webrtc](https://github.com/pions/webrtc). More here: https://github.com/pions/webrtc#install
+Webtty uses the great [pion/webrtc](https://github.com/pion/webrtc). More here: https://github.com/pion/webrtc#install
 
 ## License
 
 This project is under the apache License. See the LICENSE file for the full license text.
 
 # Dependent
-+ [webrtc](https://github.com/pions/webrtc)
++ [webrtc](https://github.com/pion/webrtc)
 + [turn](https://github.com/vlorc/turn)
 + [xterm.js](https://github.com/xtermjs/xterm.js)
 

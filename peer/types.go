@@ -1,7 +1,7 @@
 package peer
 
 import (
-	"github.com/pions/webrtc"
+	"github.com/pion/webrtc/v2"
 	"math/rand"
 	"sync"
 )
@@ -20,13 +20,13 @@ type Driver interface {
 }
 
 type ConnectionFactory interface {
-	Create(types string) (*webrtc.RTCPeerConnection, error)
+	Create(types string) (*webrtc.PeerConnection, error)
 }
 
 type SessionFactory interface {
 	Id() string
-	Create(id string, conn *webrtc.RTCPeerConnection) *Session
-	Attach(id string, conn *webrtc.RTCPeerConnection) *Session
+	Create(id string, conn *webrtc.PeerConnection) *Session
+	Attach(id string, conn *webrtc.PeerConnection) *Session
 	Query(id string) *Session
 	Remove(id string)
 }
@@ -41,11 +41,11 @@ type Message struct {
 type Description struct {
 	Session string `json:"session"`
 	Channel string `json:"channel,omitempty"`
-	webrtc.RTCSessionDescription
+	webrtc.SessionDescription
 }
 
 type Session struct {
-	*webrtc.RTCPeerConnection
+	*webrtc.PeerConnection
 	id    string
 	state chan int
 	done  chan error
@@ -57,9 +57,10 @@ type CoreSessionFactory struct {
 	source rand.Source
 }
 
-type Table map[string]func(*webrtc.RTCPeerConnection) error
+type Table map[string]func(*webrtc.PeerConnection) error
 
 type CoreConnectionFactory struct {
-	config *webrtc.RTCConfiguration
+	config *webrtc.Configuration
 	table  Table
+	api *webrtc.API
 }

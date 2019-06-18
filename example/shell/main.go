@@ -2,9 +2,10 @@ package main
 
 import (
 	"flag"
-	"github.com/pions/webrtc"
-	"github.com/vlorc/webtty/peer"
-	"github.com/vlorc/webtty/shell"
+	"rtclient/peer"
+	"rtclient/shell"
+
+	"github.com/pion/webrtc/v2"
 )
 
 func main() {
@@ -14,18 +15,17 @@ func main() {
 	stun := flag.String("stun", "", "stun url")
 	flag.Parse()
 
-	webrtc.RegisterDefaultCodecs()
 	peer.NewPeer(
 		peer.NewConnectionFactory(
-			&webrtc.RTCConfiguration{
-				IceServers: []webrtc.RTCIceServer{
+			&webrtc.Configuration{
+				ICEServers: []webrtc.ICEServer{
 					{
 						URLs:       []string{*stun},
 					},
 				},
 			},
 			peer.Table{
-				"shell": shell.Shell(*cmd),
+				"shell": shell.Shell(shell.Command(*cmd)),
 			}),
 		peer.NewSessionFactory(*id),
 		peer.NewWebSocketDriver(*id, *gateway+"/"+*id, peer.NewEvent()),

@@ -10,8 +10,12 @@ type winPtr struct {
 	pty *winpty.WinPTY
 }
 
-func __create(cmd string) Pty {
-	pty, err := winpty.Open("", cmd)
+func __create(config *Config) Pty {
+	pty, err := winpty.OpenWithOptions(winpty.Options{
+		Env: config.Env,
+		Dir: config.Directory,
+		Command:   config.Command,
+	})
 	if err != nil {
 		log.Printf("Failed open from pty master: %s\n", err)
 		panic(err)

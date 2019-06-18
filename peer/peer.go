@@ -1,7 +1,8 @@
 package peer
 
 import (
-	"github.com/pions/webrtc"
+	"github.com/pion/webrtc/v2"
+	"log"
 	"sync"
 )
 
@@ -37,7 +38,8 @@ func (p *Peer) OnOffer(offer *Description) (name string, answer *Description, er
 	if nil != err {
 		return
 	}
-	if err = peer.SetRemoteDescription(webrtc.RTCSessionDescription{Type: webrtc.RTCSdpTypeOffer, Sdp: offer.Sdp}); nil != err {
+	if err = peer.SetRemoteDescription(webrtc.SessionDescription{Type: webrtc.SDPTypeOffer, SDP: offer.SDP}); nil != err {
+		log.Printf("SetRemoteDescription error: %s\n", err)
 		return
 	}
 	sdp, err := peer.CreateAnswer(nil)
@@ -46,7 +48,7 @@ func (p *Peer) OnOffer(offer *Description) (name string, answer *Description, er
 		answer = &Description{
 			Session:               offer.Session,
 			Channel:               offer.Channel,
-			RTCSessionDescription: sdp,
+			SessionDescription: sdp,
 		}
 	}
 	return
@@ -55,7 +57,7 @@ func (p *Peer) OnOffer(offer *Description) (name string, answer *Description, er
 func (p *Peer) OnAnswer(answer *Description) error {
 	if conn := p.session.Query(answer.Session); nil != conn {
 		conn.state <- 1
-		return conn.SetRemoteDescription(webrtc.RTCSessionDescription{Type: webrtc.RTCSdpTypeAnswer, Sdp: answer.Sdp})
+		return conn.SetRemoteDescription(webrtc.SessionDescription{Type: webrtc.SDPTypeAnswer, SDP: answer.SDP})
 	}
 	return nil
 }
@@ -71,7 +73,7 @@ func (p *Peer) __create(id string, channel string) (session *Session, err error)
 	return
 }
 
-func (p *Peer) Connect(id string, channel string, init ...func(conn *webrtc.RTCPeerConnection) error) (*Session, error) {
+func (p *Peer) Connect(id string, channel string, init ...func(conn *webrtc.PeerConnection) error) (*Session, error) {
 	conn, err := p.factory.Create(channel)
 	if nil != err {
 		return nil, err
@@ -82,14 +84,15 @@ func (p *Peer) Connect(id string, channel string, init ...func(conn *webrtc.RTCP
 	offer, err := conn.CreateOffer(nil)
 	if nil != err {
 		conn.Close()
+		log.Printf("CreateOffer error: %s\n", err)
 		return nil, err
 	}
 
 	session := p.session.Create(id, conn)
 	p.driver.EmitTo(id, "OFFER", &Description{
-		Session:               session.id,
-		Channel:               channel,
-		RTCSessionDescription: offer,
+		Session:            session.id,
+		Channel:            channel,
+		SessionDescription: offer,
 	})
 	return session, nil
 }

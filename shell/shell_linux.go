@@ -11,8 +11,12 @@ type linuxPtr struct {
 	file os.File
 }
 
-func __create(cmd string) Ptr {
-	c := exec.Command(cmd)
+func __create(config *Config) Ptr {
+	c := exec.Command(config.Command)
+	c.Env = config.Env
+	c.Dir = config.Directory
+
+
 	f, err := pty.Start(c)
 	if err != nil {
 		log.Printf("Failed open from pty master: %s\n", err)

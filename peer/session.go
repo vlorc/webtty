@@ -2,7 +2,7 @@ package peer
 
 import (
 	"fmt"
-	"github.com/pions/webrtc"
+	"github.com/pion/webrtc/v2"
 	"math/rand"
 	"time"
 )
@@ -34,25 +34,25 @@ func (f *CoreSessionFactory) Remove(id string) {
 	f.table.Delete(id)
 }
 
-func (f *CoreSessionFactory) Attach(id string, conn *webrtc.RTCPeerConnection) *Session {
+func (f *CoreSessionFactory) Attach(id string, conn *webrtc.PeerConnection) *Session {
 	session := NewSession(id, conn)
 	f.table.Store(id, session)
 	return session
 }
 
-func (f *CoreSessionFactory) Create(id string, conn *webrtc.RTCPeerConnection) *Session {
+func (f *CoreSessionFactory) Create(id string, conn *webrtc.PeerConnection) *Session {
 	return f.Attach(f.__id(id), conn)
 }
 
 func (s *Session) Close() error {
-	err := s.RTCPeerConnection.Close()
+	err := s.PeerConnection.Close()
 	close(s.done)
 	return err
 }
 
-func NewSession(id string, conn *webrtc.RTCPeerConnection) *Session {
+func NewSession(id string, conn *webrtc.PeerConnection) *Session {
 	return &Session{
-		RTCPeerConnection: conn,
+		PeerConnection: conn,
 		id:                id,
 		state:             make(chan int, 1),
 		done:              make(chan error, 1),
